@@ -30,12 +30,19 @@ end
 if RUBY_VERSION.start_with? "1.8"
   task :default => [:spec]
 else
-  require "cucumber/rake/task"
-  Cucumber::Rake::Task.new
+  begin
+    require "cucumber/rake/task"
+    Cucumber::Rake::Task.new
 
-  if RUBY_VERSION.start_with? "1.9"
-    task :default => [:spec, :cucumber]
-  else
-    task :default => [:rubocop, :spec, :cucumber]
+    if RUBY_VERSION.start_with? "1.9"
+      task :default => [:spec, :cucumber]
+    else
+      task :default => [:rubocop, :spec, :cucumber]
+    end
+  rescue LoadError
+    # Alwasy ruby-head can not install 'cucumber' because
+    # we can not specify ruby-head or trunk for `#platforms` in Gemfile.
+    $stderr.puts "cucumber is not installed"
+    task :default => [:spec]
   end
 end
